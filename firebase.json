@@ -16,6 +16,10 @@
                 "destination": "http://localhost:3000"
             },
             {
+                "source": "/admin",
+                "destination": "/admin/login.html"
+            },
+            {
                 "source": "/admin/**",
                 "destination": "/admin/login.html"
             }

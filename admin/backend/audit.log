@@ -4,3 +4,5 @@
 {"timestamp":"2026-02-14T14:53:07.677Z","user":"admin","action":"login_success_no_mfa","details":{},"ip":"internal"}
 {"timestamp":"2026-02-14T14:53:50.681Z","user":"admin","action":"login_success_phase1_mfa_required","details":{},"ip":"internal"}
 {"timestamp":"2026-02-14T14:53:51.338Z","user":"admin","action":"login_success_mfa","details":{},"ip":"internal"}
+{"timestamp":"2026-02-14T15:15:20.314Z","user":"admin","action":"login_success_phase1_mfa_required","details":{},"ip":"internal"}
+{"timestamp":"2026-02-14T15:15:20.929Z","user":"admin","action":"login_success_mfa","details":{},"ip":"internal"}

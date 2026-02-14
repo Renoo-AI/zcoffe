@@ -247,6 +247,10 @@ app.use(express.static(path.join(__dirname, '../..'), {
 }));
 
 // Route par défaut : Redirige vers la page de login de l'admin pour tout ce qui est dans /admin
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, '../login.html'));
+});
+
 app.get('/admin/*splat', (req, res) => {
     res.sendFile(path.join(__dirname, '../login.html'));
 });
