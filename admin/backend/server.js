@@ -68,17 +68,34 @@ app.post('/api/login', (req, res) => {
     const user = users.find(u => u.username === username);
 
     if (user && bcrypt.compareSync(password, user.password)) {
-        // Phase 1 : Validé, on génère un token temporaire pour le MFA
-        const mfaToken = jwt.sign({ username: user.username, step: 'mfa' }, SECRET_KEY, { expiresIn: '5m' });
-        logAction(username, 'login_success_phase1');
-        res.json({ mfaToken });
+        if (user.mfaEnabled) {
+            // Phase 1 : MFA Requis
+            const mfaToken = jwt.sign({ username: user.username, step: 'mfa' }, SECRET_KEY, { expiresIn: '5m' });
+            logAction(username, 'login_success_phase1_mfa_required');
+            res.json({ mfaToken });
+        } else {
+            // Pas de MFA, on crée la session direct
+            const sessionToken = jwt.sign(
+                { username: user.username, role: user.role || 'admin' },
+                SECRET_KEY,
+                { expiresIn: '2h' }
+            );
+            res.cookie('admin_session', sessionToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'Strict',
+                maxAge: 7200000
+            });
+            logAction(username, 'login_success_no_mfa');
+            res.json({ success: true, username: user.username });
+        }
     } else {
         logAction(username || 'unknown', 'login_failure', { reason: 'invalid_credentials' });
         res.status(401).json({ error: 'Identifiants invalides' });
     }
 });
 
-app.post('/api/verify-mfa', (req, res) => {
+app.post('/api/mfa/verify', (req, res) => {
     const { mfaToken, otp } = req.body;
 
     try {
@@ -96,7 +113,7 @@ app.post('/api/verify-mfa', (req, res) => {
 
         if (verified) {
             const sessionToken = jwt.sign(
-                { username: user.username, role: user.role },
+                { username: user.username, role: user.role || 'admin' },
                 SECRET_KEY,
                 { expiresIn: '2h' }
             );
@@ -105,11 +122,11 @@ app.post('/api/verify-mfa', (req, res) => {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'Strict',
-                maxAge: 7200000 // 2h
+                maxAge: 7200000
             });
 
             logAction(user.username, 'login_success_mfa');
-            res.json({ success: true, username: user.username, role: user.role });
+            res.json({ success: true, username: user.username });
         } else {
             logAction(user.username, 'mfa_failure', { reason: 'invalid_otp' });
             res.status(401).json({ error: 'Code MFA invalide' });
@@ -130,7 +147,48 @@ app.get('/api/me', authenticateToken, (req, res) => {
     res.json({ username: req.user.username, role: req.user.role });
 });
 
+app.get('/api/verify-session', (req, res) => {
+    const token = req.cookies.admin_session;
+    if (!token) return res.json({ authenticated: false });
+
+    jwt.verify(token, SECRET_KEY, (err, user) => {
+        if (err) return res.json({ authenticated: false });
+        res.json({ authenticated: true, username: user.username });
+    });
+});
+
+// Endpoint pour la configuration du MFA (doit être protégé par session)
+app.get('/api/admin/setup', authenticateToken, async (req, res) => {
+    const users = getUsers();
+    const user = users.find(u => u.username === req.user.username);
+
+    // On génère une URL otpauth
+    const otpauthUrl = speakeasy.otpauthURL({
+        secret: user.mfaSecret,
+        label: `ZCOFFEE:${user.username}`,
+        encoding: 'base32'
+    });
+
+    try {
+        const QRCode = require('qrcode');
+        const qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl);
+        res.json({
+            username: user.username,
+            mfaEnabled: user.mfaEnabled,
+            mfaSecret: user.mfaSecret, // Pour saisie manuelle
+            qrCode: qrCodeDataUrl
+        });
+    } catch (err) {
+        res.status(500).json({ error: 'Erreur génération QR Code' });
+    }
+});
+
 // --- MENU CRUD ROUTES ---
+
+// Endpoint PUBLIC pour le menu (utilisé par la page client)
+app.get('/api/public/menu', (req, res) => {
+    res.json(getMenu());
+});
 
 app.get('/api/menu', authenticateToken, (req, res) => {
     res.json(getMenu());
@@ -182,16 +240,20 @@ app.post('/api/menu/restore', authenticateToken, (req, res) => {
 });
 
 // --- SERVE FRONTEND ---
-// On sert uniquement les fichiers du dossier admin, en excluant explicitement le dossier backend
-app.use(express.static(path.join(__dirname, '..'), {
-    index: "login.html",
-    // Empêche de lister les répertoires ou d'accéder à des fichiers sensibles si le middleware précédent a échoué
+// On sert les fichiers depuis la racine du projet
+app.use(express.static(path.join(__dirname, '../..'), {
+    index: "index.html",
     dotfiles: 'deny'
 }));
 
-// Route par défaut pour l'admin
-app.use((req, res) => {
+// Route par défaut : Redirige vers la page de login de l'admin pour tout ce qui est dans /admin
+app.get('/admin/*splat', (req, res) => {
     res.sendFile(path.join(__dirname, '../login.html'));
+});
+
+// Par défaut, retour à l'index
+app.use((req, res) => {
+    res.sendFile(path.join(__dirname, '../../index.html'));
 });
 
 app.listen(PORT, () => {

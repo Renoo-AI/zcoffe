@@ -10,6 +10,16 @@
             "**/.*",
             "**/node_modules/**"
         ],
+        "rewrites": [
+            {
+                "source": "/api/**",
+                "destination": "http://localhost:3000"
+            },
+            {
+                "source": "/admin/**",
+                "destination": "/admin/login.html"
+            }
+        ],
         "headers": [
             {
                 "source": "**",

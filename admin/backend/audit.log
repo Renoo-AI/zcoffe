@@ -1,2 +1,6 @@
 {"timestamp":"2026-02-14T14:28:33.035Z","user":"system","action":"unauthorized_access_attempt","details":{"path":"/users.json"},"ip":"internal"}
 {"timestamp":"2026-02-14T14:28:46.205Z","user":"admin","action":"login_failure","details":{"reason":"invalid_credentials"},"ip":"internal"}
+{"timestamp":"2026-02-14T14:51:43.409Z","user":"admin","action":"login_failure","details":{"reason":"invalid_credentials"},"ip":"internal"}
+{"timestamp":"2026-02-14T14:53:07.677Z","user":"admin","action":"login_success_no_mfa","details":{},"ip":"internal"}
+{"timestamp":"2026-02-14T14:53:50.681Z","user":"admin","action":"login_success_phase1_mfa_required","details":{},"ip":"internal"}
+{"timestamp":"2026-02-14T14:53:51.338Z","user":"admin","action":"login_success_mfa","details":{},"ip":"internal"}

@@ -192,6 +192,8 @@
                     currentMfaToken = response.mfaToken;
                     loginForm.classList.add('hidden');
                     mfaForm.classList.remove('hidden');
+                } else if (response.success) {
+                    window.location.href = "dashboard.html";
                 }
             } catch (err) {
                 errorText.innerText = err.message || "Erreur d'authentification";

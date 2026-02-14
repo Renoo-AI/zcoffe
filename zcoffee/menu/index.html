@@ -174,13 +174,6 @@
     </footer>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { firebaseConfig } from "../../js/firebase-config.js";
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
         let currentLang = 'fr';
         let fullData = [];
 
@@ -213,36 +206,25 @@
             { category: "Eaux & Soft", categoryAr: "مياه ومشروبات غازية", nameFr: "Canette", nameAr: "كانات", price: "2.5" }
         ];
 
-        function setupMenuListener() {
-            const menuCol = collection(db, 'menu');
+        async function setupMenuListener() {
+            try {
+                // SÉCURITÉ : Utilisation d'une API locale autonome au lieu de Firebase
+                const response = await fetch('/api/public/menu');
+                if (!response.ok) throw new Error("Erreur de chargement");
 
-            const timeout = setTimeout(() => {
-                if (fullData.length === 0) {
-                    fullData = fallbackMenu;
-                    renderMenu();
-                    document.getElementById('loading').classList.add('hidden');
-                }
-            }, 3000);
+                const data = await response.json();
+                fullData = data.length > 0 ? data : fallbackMenu;
 
-            onSnapshot(menuCol, (snapshot) => {
-                clearTimeout(timeout);
-                fullData = [];
-                if (snapshot.empty) {
-                    fullData = fallbackMenu;
-                } else {
-                    const docs = [];
-                    snapshot.forEach(doc => docs.push(doc.data()));
-                    fullData = docs.sort((a, b) => (a.category || "").localeCompare(b.category || ""));
-                }
+                // Tri par catégorie
+                fullData.sort((a, b) => (a.category || "").localeCompare(b.category || ""));
+            } catch (error) {
+                console.error("API Error, using fallback:", error);
+                fullData = fallbackMenu;
+            } finally {
                 renderMenu();
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('error-message').classList.add('hidden');
-            }, (error) => {
-                clearTimeout(timeout);
-                fullData = fallbackMenu;
-                renderMenu();
-                document.getElementById('loading').classList.add('hidden');
-            });
+            }
         }
 
         function renderMenu() {
