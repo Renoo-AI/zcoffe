@@ -170,6 +170,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { firebaseConfig } from "../js/firebase-config.js";
+        import { checkAdminStatus } from "./security_utils.js";
 
         // Sécurité : Si la clé n'a pas été saisie, on retourne à l'index secret
         if (sessionStorage.getItem('key_cleared') !== 'true') {
@@ -181,16 +182,13 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
-        const ALLOWED_EMAILS = [
-            "belhajyoussefbelhaj@gmail.com",
-            "awatifnefzi@gmail.com",
-            "mina.zina.coffee@gmail.com",
-            "admin.zina@gmail.com"
-        ];
 
-        onAuthStateChanged(auth, (user) => {
-            if (user && ALLOWED_EMAILS.includes(user.email)) {
-                window.location.href = "dashboard.html";
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const isAdmin = await checkAdminStatus(user);
+                if (isAdmin) {
+                    window.location.href = "dashboard.html";
+                }
             }
         });
 
@@ -204,8 +202,10 @@
 
             try {
                 const result = await signInWithPopup(auth, provider);
-                if (!ALLOWED_EMAILS.includes(result.user.email)) {
-                    errorText.innerText = "Accès refusé : E-mail non autorisé.";
+                const isAdmin = await checkAdminStatus(result.user);
+
+                if (!isAdmin) {
+                    errorText.innerText = "Accès refusé : Droits insuffisants.";
                     errorDiv.classList.remove("hidden");
                     await auth.signOut();
                     googleBtn.disabled = false;

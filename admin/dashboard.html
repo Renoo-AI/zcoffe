@@ -279,21 +279,15 @@
         <script type="module">
             import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
             import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-            import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+            import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
             import { firebaseConfig } from "../js/firebase-config.js";
+            import { sanitize, checkAdminStatus, logAuditAction } from "./security_utils.js";
 
             const app = initializeApp(firebaseConfig);
             const auth = getAuth(app);
             const db = getFirestore(app);
 
-            const ALLOWED_EMAILS = [
-                "belhajyoussefbelhaj@gmail.com",
-                "awatifnefzi@gmail.com",
-                "mina.zina.coffee@gmail.com",
-                "admin.zina@gmail.com"
-            ];
-
-            onAuthStateChanged(auth, (user) => {
+            onAuthStateChanged(auth, async (user) => {
                 const isKeyCleared = sessionStorage.getItem("key_cleared") === "true";
 
                 if (!isKeyCleared) {
@@ -301,8 +295,14 @@
                     return;
                 }
 
-                if (!user || !ALLOWED_EMAILS.includes(user.email)) {
-                    if (user) signOut(auth);
+                if (!user) {
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                const isAdmin = await checkAdminStatus(user);
+                if (!isAdmin) {
+                    signOut(auth);
                     window.location.href = "login.html";
                 } else {
                     document.getElementById("body-content").classList.remove("hidden");
@@ -355,17 +355,25 @@
                         const id = docSnap.id;
                         const card = document.createElement('div');
                         card.className = 'pro-card p-6 rounded-2xl flex flex-col justify-between gap-6';
+
+                        // Use sanitization for all user-provided data
+                        const cat = sanitize(data.category);
+                        const catAr = sanitize(data.categoryAr);
+                        const nameFr = sanitize(data.nameFr);
+                        const nameAr = sanitize(data.nameAr);
+                        const price = sanitize(data.price);
+
                         card.innerHTML = `
                         <div>
                             <div class="flex justify-between items-start mb-4">
-                                <span class="text-[8px] font-bold uppercase tracking-[0.2em] bg-[#b48c68]/10 text-[#b48c68] px-3 py-1 rounded-md">${data.category}</span>
-                                <span class="text-[8px] font-bold opacity-30 uppercase" dir="rtl">${data.categoryAr || ''}</span>
+                                <span class="text-[8px] font-bold uppercase tracking-[0.2em] bg-[#b48c68]/10 text-[#b48c68] px-3 py-1 rounded-md">${cat}</span>
+                                <span class="text-[8px] font-bold opacity-30 uppercase" dir="rtl">${catAr || ''}</span>
                             </div>
-                            <h4 class="font-bold text-base mb-1">${data.nameFr}</h4>
-                            <p class="text-xs font-bold opacity-30" dir="rtl">${data.nameAr}</p>
+                            <h4 class="font-bold text-base mb-1">${nameFr}</h4>
+                            <p class="text-xs font-bold opacity-30" dir="rtl">${nameAr}</p>
                         </div>
                         <div class="flex justify-between items-center pt-4 border-t border-black/5">
-                            <div class="text-xl font-bold text-[#b48c68]">${data.price}<span class="text-[9px] opacity-40 ml-1 uppercase">DT</span></div>
+                            <div class="text-xl font-bold text-[#b48c68]">${price}<span class="text-[9px] opacity-40 ml-1 uppercase">DT</span></div>
                             <div class="flex gap-2">
                                 <button onclick='editItem("${id}", ${JSON.stringify(data).replace(/"/g, "&quot;")})' class="p-3 bg-gray-50 hover:bg-black hover:text-white rounded-xl transition-all">
                                     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -385,6 +393,7 @@
             window.deleteItem = async (id) => {
                 if (confirm("Supprimer cet article ?")) {
                     await deleteDoc(doc(db, "menu", id));
+                    await logAuditAction(db, addDoc, collection, serverTimestamp, auth.currentUser, "DELETE_ITEM", { id });
                     loadMenu();
                 }
             };
@@ -395,6 +404,7 @@
                 const batch = writeBatch(db);
                 q.forEach(d => batch.delete(doc(db, "menu", d.id)));
                 await batch.commit();
+                await logAuditAction(db, addDoc, collection, serverTimestamp, auth.currentUser, "CLEAR_MENU", {});
                 loadMenu();
             };
 
@@ -411,14 +421,16 @@
                     nameFr: document.getElementById('nameFr').value,
                     nameAr: document.getElementById('nameAr').value,
                     price: document.getElementById('price').value,
-                    updatedAt: new Date()
+                    updatedAt: serverTimestamp()
                 };
                 try {
                     if (editId) {
                         await updateDoc(doc(db, "menu", editId), itemData);
+                        await logAuditAction(db, addDoc, collection, serverTimestamp, auth.currentUser, "EDIT_ITEM", { id: editId, ...itemData });
                     } else {
-                        itemData.createdAt = new Date();
-                        await addDoc(collection(db, "menu"), itemData);
+                        itemData.createdAt = serverTimestamp();
+                        const docRef = await addDoc(collection(db, "menu"), itemData);
+                        await logAuditAction(db, addDoc, collection, serverTimestamp, auth.currentUser, "ADD_ITEM", { id: docRef.id, ...itemData });
                     }
                     closeModal();
                     loadMenu();
@@ -427,7 +439,7 @@
                 btn.innerText = "Enregistrer";
             });
 
-            window.restoreDefaults = async () => {
+            window.restoreDefaultMenu = async () => {
                 if (!confirm("Restaurer la liste d'origine ZCOFFEE ?")) return;
                 const defaults = [
                     { category: "Cafés", categoryAr: "القهوة", nameFr: "Express / Demi / Allongé", nameAr: "إكسبريسو / دمي / ألونجي", price: "2.5" },
@@ -452,7 +464,8 @@
                     { category: "Eaux & Soft", categoryAr: "مياه ومشروبات غازية", nameFr: "Eau 0.5 L", nameAr: "ماء 0.5 ل", price: "1" },
                     { category: "Eaux & Soft", categoryAr: "مياه ومشروبات غازية", nameFr: "Canette", nameAr: "كانات", price: "2.5" }
                 ];
-                for (const item of defaults) await addDoc(collection(db, "menu"), { ...item, createdAt: new Date() });
+                for (const item of defaults) await addDoc(collection(db, "menu"), { ...item, createdAt: serverTimestamp() });
+                await logAuditAction(db, addDoc, collection, serverTimestamp, auth.currentUser, "RESTORE_DEFAULTS", {});
                 loadMenu();
             };
         </script>
