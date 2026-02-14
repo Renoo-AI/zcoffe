@@ -1,0 +1,2 @@
+{"timestamp":"2026-02-14T14:28:33.035Z","user":"system","action":"unauthorized_access_attempt","details":{"path":"/users.json"},"ip":"internal"}
+{"timestamp":"2026-02-14T14:28:46.205Z","user":"admin","action":"login_failure","details":{"reason":"invalid_credentials"},"ip":"internal"}

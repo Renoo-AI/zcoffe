@@ -1,61 +1,137 @@
 /**
- * Security Utilities for ZCOFFEE Admin
+ * ZCOFFEE Security Utilities - Autonomous Version
+ * Gestion de l'authentification locale, MFA et protection des routes.
  */
 
+const API_BASE = '/api'; // Configurable selon l'environnement
+
 /**
- * Basic Input Sanitization to prevent XSS
- * @param {string} str
- * @returns {string}
+ * Assainit les entrées utilisateur pour prévenir les failles XSS
  */
-export function sanitize(str) {
-    if (typeof str !== 'string') return str;
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#x27;',
-        "/": '&#x2F;',
-    };
-    const reg = /[&<>"'/]/ig;
-    return str.replace(reg, (match) => (map[match]));
+export function sanitize(text) {
+    if (typeof text !== 'string') return text;
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 /**
- * Check if user has the admin custom claim
- * @param {import("firebase/auth").User} user
- * @returns {Promise<boolean>}
+ * Phase 1 de la connexion : Identifiants
  */
-export async function checkAdminStatus(user) {
-    if (!user) return false;
-    // Force refresh the token to get the latest claims
-    const idTokenResult = await user.getIdTokenResult(true);
-    return !!idTokenResult.claims.admin;
+export async function login(username, password) {
+    const response = await fetch(`${API_BASE}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Identifiants invalides');
+    return data;
 }
 
 /**
- * Check if MFA is enabled and required
- * @param {import("firebase/auth").User} user
- * @returns {boolean}
+ * Phase 2 de la connexion : Vérification MFA
  */
-export function isMFAEnabled(user) {
-    return user.multiFactor && user.multiFactor.enrolledFactors.length > 0;
+export async function verifyMFA(mfaToken, otp) {
+    const response = await fetch(`${API_BASE}/mfa/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mfaToken, otp })
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Code MFA invalide');
+    return data.success;
 }
 
 /**
- * Log an action to the audit trail
+ * Vérifie si la session est active et valide
  */
-export async function logAuditAction(db, addDoc, collection, serverTimestamp, user, action, details) {
+export async function checkSession() {
     try {
-        await addDoc(collection(db, "audit_logs"), {
-            userId: user.uid,
-            userEmail: user.email,
-            action: action,
-            details: details,
-            timestamp: serverTimestamp(),
-            userAgent: navigator.userAgent
-        });
+        const response = await fetch(`${API_BASE}/verify-session`);
+        if (!response.ok) return false;
+        const data = await response.json();
+        return data.authenticated;
     } catch (error) {
-        console.error("Audit logging failed:", error);
+        console.error("Session check failed:", error);
+        return false;
     }
+}
+
+/**
+ * Déconnexion sécurisée
+ */
+export async function logout() {
+    await fetch(`${API_BASE}/logout`, { method: 'POST' });
+    window.location.href = "login.html";
+}
+
+/**
+ * Enregistre une action critique dans l'audit trail via le backend
+ * Note: Dans cette version autonome, l'audit est géré par le serveur
+ */
+export async function logAudit(action, details) {
+     // console.log(`[AUDIT] Action: ${action} | Details:`, details);
+    // Optionnel: Envoyer à un endpoint d'audit dédié si implémenté au backend
+}
+
+/**
+ * Protection de route pour le dashboard
+ */
+export async function protectRoute() {
+    const isAuthenticated = await checkSession();
+    if (!isAuthenticated) {
+        window.location.href = "login.html";
+        return false;
+    }
+    return true;
+}
+
+/**
+ * API Menu
+ */
+export async function getMenuItems() {
+    const response = await fetch(`${API_BASE}/menu`);
+    if (!response.ok) throw new Error('Failed to fetch menu');
+    return await response.json();
+}
+
+export async function addMenuItem(item) {
+    const response = await fetch(`${API_BASE}/menu`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item)
+    });
+    if (!response.ok) throw new Error('Failed to add item');
+    return await response.json();
+}
+
+export async function updateMenuItem(id, item) {
+    const response = await fetch(`${API_BASE}/menu/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item)
+    });
+    if (!response.ok) throw new Error('Failed to update item');
+    return await response.json();
+}
+
+export async function deleteMenuItem(id) {
+    const response = await fetch(`${API_BASE}/menu/${id}`, { method: 'DELETE' });
+    if (!response.ok) throw new Error('Failed to delete item');
+    return await response.json();
+}
+
+export async function clearMenu() {
+    const response = await fetch(`${API_BASE}/menu/clear`, { method: 'POST' });
+    if (!response.ok) throw new Error('Failed to clear menu');
+    return await response.json();
+}
+
+export async function restoreMenu() {
+    const response = await fetch(`${API_BASE}/menu/restore`, { method: 'POST' });
+    if (!response.ok) throw new Error('Failed to restore menu');
+    return await response.json();
 }

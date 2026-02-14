@@ -1,0 +1,8 @@
+[
+  {
+    "username": "admin",
+    "password": "$2b$12$cOfGsdZASR0KQ1ZoG6o3j.1H6soicdkTQQFu/ynlhk51lFwuCP1L.",
+    "mfaSecret": "GIQUAP2GEFVWSZDXGVTVMZZZGFKUQTCHKJKX2OCWIA2W62ZEFBWQ",
+    "mfaEnabled": false
+  }
+]

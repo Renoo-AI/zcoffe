@@ -25,12 +25,6 @@
             margin: 0;
         }
 
-        .header-glass {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(180, 140, 104, 0.1);
-        }
-
         .pro-card {
             background: white;
             border: 1px solid rgba(0, 0, 0, 0.05);
@@ -53,86 +47,10 @@
             background: var(--accent);
             transform: translateY(-1px);
         }
-
-        .btn-outline {
-            border: 1px solid rgba(180, 140, 104, 0.3);
-            color: var(--accent);
-        }
-
-        .btn-outline:hover {
-            background: var(--accent);
-            color: white;
-        }
-
-        /* Style spécial pour mobile */
-        @media (max-width: 640px) {
-            .mobile-flex {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .mobile-full {
-                width: 100%;
-            }
-        }
-
-        /* Mobile Optimized Action Bar */
-        .mobile-fob {
-            position: fixed;
-            bottom: 2rem;
-            right: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            z-index: 100;
-        }
-
-        .btn-fab {
-            width: 56px;
-            height: 56px;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 25px rgba(180, 140, 104, 0.4);
-            transition: all 0.3s ease-out;
-        }
-
-        .btn-fab:active {
-            transform: scale(0.9);
-        }
-
-        .btn-preview {
-            background: #b48c68;
-            color: white;
-        }
-
-        /* Responsive spacing for mobile */
-        @media (max-width: 640px) {
-            .dashboard-card {
-                padding: 1rem !important;
-                border-radius: 1.5rem !important;
-            }
-
-            .item-actions {
-                flex-shrink: 0;
-            }
-        }
     </style>
 </head>
 
 <body class="bg-[#faf9f6]">
-    <!-- Mobile FOB -->
-    <div class="mobile-fob md:hidden">
-        <a href="/zinacoffee/menu" target="_blank" class="btn-fab btn-preview" title="Visualiser le menu">
-            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-        </a>
-    </div>
-
     <div id="body-content" class="hidden min-h-screen">
         <!-- Navigation -->
         <nav
@@ -143,65 +61,39 @@
                         <path fill="#b48c68" d="M2 2h6v1H4v1h4v1H2v1h6v1H2V2z" />
                     </svg>
                 </div>
-                <div class="hidden sm:block">
+                <div>
                     <h1 class="text-sm font-bold uppercase tracking-widest text-[#2d2a26]">ZCOFFEE</h1>
-                    <p class="text-[9px] text-[#b48c68] font-bold uppercase tracking-tighter" id="userEmail">Admin
-                        Access</p>
+                    <p class="text-[9px] text-[#b48c68] font-bold uppercase tracking-tighter" id="userName">Admin</p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 md:gap-4">
-                <!-- Desktop Visualize Button -->
-                <a href="/zcoffee/menu" target="_blank"
-                    class="hidden md:flex items-center gap-2 px-5 py-2.5 rounded-xl border border-black/5 bg-white hover:bg-black hover:text-white transition-all text-xs font-bold uppercase tracking-widest">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    Visualiser
-                </a>
-                <button onclick="logout()"
-                    class="px-5 py-2.5 rounded-xl bg-red-50 text-red-600 text-xs font-bold uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">Déconnexion</button>
-            </div>
+            <button onclick="handleLogout()"
+                class="px-5 py-2.5 rounded-xl bg-red-50 text-red-600 text-xs font-bold uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">Déconnexion</button>
         </nav>
 
         <main class="max-w-7xl mx-auto px-4 py-6 md:py-10">
             <!-- Header Section -->
             <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
                 <div>
-                    <h2 class="text-3xl md:text-5xl font-bold tracking-tight mb-2 serif">Bonjour, Youssef</h2>
-                    <p class="text-sm text-[#b48c68] font-medium">Gérez votre menu et vos prix en temps réel.</p>
+                    <h2 class="text-3xl md:text-5xl font-bold tracking-tight mb-2">Tableau de Bord</h2>
+                    <p class="text-sm text-[#b48c68] font-medium">Gestion autonome du menu ZCOFFEE.</p>
                 </div>
                 <div class="flex flex-wrap gap-3">
-                    <button onclick="clearMenu()"
+                    <button onclick="handleClearMenu()"
                         class="px-6 py-3 rounded-xl border border-red-200 text-red-600 text-xs font-bold uppercase tracking-widest hover:bg-red-50 transition-all flex items-center gap-2">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
                         Vider
                     </button>
-                    <button onclick="restoreDefaultMenu()"
+                    <button onclick="handleRestoreMenu()"
                         class="px-6 py-3 rounded-xl border border-black text-black text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all flex items-center gap-2">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
                         Restaurer
                     </button>
                     <button onclick="openModal()"
-                        class="px-8 py-3 rounded-xl bg-black text-white text-xs font-bold uppercase tracking-widest hover:bg-[#b48c68] shadow-lg shadow-black/10 transition-all flex items-center gap-2">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="3"
-                            viewBox="0 0 24 24">
-                            <path d="M12 4v16m8-8H4" />
-                        </svg>
-                        Ajouter un article
+                        class="px-8 py-3 rounded-xl bg-black text-white text-xs font-bold uppercase tracking-widest hover:bg-[#b48c68] transition-all">
+                        Ajouter
                     </button>
                 </div>
             </div>
+
             <div id="loading" class="text-center py-20 opacity-20 font-bold uppercase tracking-widest text-xs">
                 Chargement...
             </div>
@@ -211,264 +103,162 @@
             </div>
         </main>
 
-        <!-- Modal Moderne -->
+        <!-- Modal -->
         <div id="modal"
             class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[100]">
-            <div class="bg-white rounded-3xl p-6 md:p-10 w-full max-w-lg shadow-2xl scale-95 transition-all"
-                id="modalContent">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 id="modalTitle" class="text-xl font-bold">Modifier Article</h3>
-                    <button onclick="closeModal()" class="p-2 opacity-30 hover:opacity-100 transition-all">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-                <form id="itemForm" class="space-y-4 text-sm">
+            <div class="bg-white rounded-3xl p-10 w-full max-w-lg shadow-2xl">
+                <h3 id="modalTitle" class="text-xl font-bold mb-6">Article</h3>
+                <form id="itemForm" class="space-y-4">
                     <input type="hidden" id="editId">
                     <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label
-                                class="block text-[10px] font-bold uppercase tracking-widest opacity-40 mb-1">Catégorie
-                                (FR)</label>
-                            <input type="text" id="category"
-                                class="w-full bg-gray-50 border border-black/5 rounded-lg px-4 py-3 focus:border-[#b48c68] outline-none"
-                                required>
-                        </div>
-                        <div>
-                            <label
-                                class="block text-[10px] font-bold uppercase tracking-widest opacity-40 mb-1 text-right">Catégorie
-                                (AR)</label>
-                            <input type="text" id="categoryAr"
-                                class="w-full bg-gray-50 border border-black/5 rounded-lg px-4 py-3 focus:border-[#b48c68] outline-none text-right font-bold"
-                                dir="rtl" required>
-                        </div>
+                        <input type="text" id="category" placeholder="Catégorie (FR)" class="w-full bg-gray-50 p-4 rounded-xl outline-none" required>
+                        <input type="text" id="categoryAr" placeholder="Catégorie (AR)" class="w-full bg-gray-50 p-4 rounded-xl outline-none text-right" dir="rtl" required>
                     </div>
-                    <div>
-                        <label class="block text-[10px] font-bold uppercase tracking-widest opacity-40 mb-1">Nom du
-                            produit
-                            (FR)</label>
-                        <input type="text" id="nameFr"
-                            class="w-full bg-gray-50 border border-black/5 rounded-lg px-4 py-3 focus:border-[#b48c68] outline-none"
-                            required>
+                    <input type="text" id="nameFr" placeholder="Nom (FR)" class="w-full bg-gray-50 p-4 rounded-xl outline-none" required>
+                    <input type="text" id="nameAr" placeholder="Nom (AR)" class="w-full bg-gray-50 p-4 rounded-xl outline-none text-right" dir="rtl" required>
+                    <input type="text" id="price" placeholder="Prix (DT)" class="w-full bg-gray-50 p-4 rounded-xl outline-none" required>
+                    <div class="flex gap-2 pt-4">
+                        <button type="submit" class="btn-premium flex-1 py-4 rounded-xl font-bold uppercase tracking-widest text-[10px]">Enregistrer</button>
+                        <button type="button" onclick="closeModal()" class="flex-1 py-4 border border-black/10 rounded-xl font-bold uppercase tracking-widest text-[10px]">Annuler</button>
                     </div>
-                    <div>
-                        <label
-                            class="block text-[10px] font-bold uppercase tracking-widest opacity-40 mb-1 text-right">Nom
-                            du produit (AR)</label>
-                        <input type="text" id="nameAr"
-                            class="w-full bg-gray-50 border border-black/5 rounded-lg px-4 py-3 focus:border-[#b48c68] outline-none text-right font-bold"
-                            dir="rtl" required>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold uppercase tracking-widest opacity-40 mb-1">Prix
-                            (DT)</label>
-                        <input type="text" id="price"
-                            class="w-full bg-gray-50 border border-black/5 rounded-lg px-4 py-3 focus:border-[#b48c68] outline-none font-bold"
-                            required>
-                    </div>
-                    <button type="submit" id="submitBtn"
-                        class="btn-premium w-full py-4 rounded-xl font-bold uppercase tracking-widest text-[10px] mt-4 shadow-lg shadow-black/10">
-                        Enregistrer
-                    </button>
                 </form>
             </div>
         </div>
+    </div>
 
-        <script type="module">
-            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-            import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-            import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-            import { firebaseConfig } from "../js/firebase-config.js";
-            import { sanitize, checkAdminStatus, logAuditAction } from "./security_utils.js";
+    <script type="module">
+        import { protectRoute, logout, getMenuItems, addMenuItem, updateMenuItem, deleteMenuItem, clearMenu, restoreMenu, sanitize } from "./security_utils.js";
 
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const db = getFirestore(app);
+        // Initialisation
+        async function init() {
+            const ok = await protectRoute();
+            if (ok) {
+                document.getElementById('body-content').classList.remove('hidden');
+                loadMenu();
+            }
+        }
+        init();
 
-            onAuthStateChanged(auth, async (user) => {
-                const isKeyCleared = sessionStorage.getItem("key_cleared") === "true";
+        window.handleLogout = logout;
 
-                if (!isKeyCleared) {
-                    window.location.href = "../zcoffee-secret-2026.html";
+        async function loadMenu() {
+            const list = document.getElementById('menuList');
+            const loading = document.getElementById('loading');
+            list.innerHTML = '';
+            loading.classList.remove('hidden');
+
+            try {
+                const items = await getMenuItems();
+                loading.classList.add('hidden');
+
+                if (items.length === 0) {
+                    list.innerHTML = `<div class="col-span-full py-20 text-center opacity-30 font-bold uppercase tracking-widest text-[10px]">Menu vide.</div>`;
                     return;
                 }
 
-                if (!user) {
-                    window.location.href = "login.html";
-                    return;
-                }
+                items.forEach((item) => {
+                    const card = document.createElement('div');
+                    card.className = 'pro-card p-6 rounded-2xl flex flex-col justify-between gap-6';
 
-                const isAdmin = await checkAdminStatus(user);
-                if (!isAdmin) {
-                    signOut(auth);
-                    window.location.href = "login.html";
-                } else {
-                    document.getElementById("body-content").classList.remove("hidden");
-                    document.getElementById("userEmail").innerText = user.email;
-                    loadMenu();
-                }
-            });
+                    const category = sanitize(item.category);
+                    const nameFr = sanitize(item.nameFr);
+                    const nameAr = sanitize(item.nameAr);
+                    const price = sanitize(item.price);
 
-            window.logout = () => {
-                sessionStorage.removeItem("key_cleared");
-                signOut(auth);
-            };
-            window.openModal = (editData = null) => {
-                const modal = document.getElementById('modal');
-                modal.classList.remove('hidden');
-                if (editData) {
-                    document.getElementById('modalTitle').innerText = "Modifier Article";
-                    document.getElementById('editId').value = editData.id;
-                    document.getElementById('category').value = editData.category;
-                    document.getElementById('categoryAr').value = editData.categoryAr;
-                    document.getElementById('nameFr').value = editData.nameFr;
-                    document.getElementById('nameAr').value = editData.nameAr;
-                    document.getElementById('price').value = editData.price;
-                } else {
-                    document.getElementById('modalTitle').innerText = "Nouvel Article";
-                    document.getElementById('itemForm').reset();
-                    document.getElementById('editId').value = "";
-                }
-            };
-            window.closeModal = () => document.getElementById('modal').classList.add('hidden');
-
-            async function loadMenu() {
-                const list = document.getElementById('menuList');
-                const loading = document.getElementById('loading');
-                list.innerHTML = '';
-                loading.classList.remove('hidden');
-
-                try {
-                    const q = query(collection(db, "menu"), orderBy("category"));
-                    const querySnapshot = await getDocs(q);
-                    loading.classList.add('hidden');
-
-                    if (querySnapshot.empty) {
-                        list.innerHTML = `<div class="col-span-full py-20 text-center opacity-30 font-bold uppercase tracking-widest text-[10px]">Menu vide. Cliquez sur "Restaurer Menu" en haut.</div>`;
-                        return;
-                    }
-
-                    querySnapshot.forEach((docSnap) => {
-                        const data = docSnap.data();
-                        const id = docSnap.id;
-                        const card = document.createElement('div');
-                        card.className = 'pro-card p-6 rounded-2xl flex flex-col justify-between gap-6';
-
-                        // Use sanitization for all user-provided data
-                        const cat = sanitize(data.category);
-                        const catAr = sanitize(data.categoryAr);
-                        const nameFr = sanitize(data.nameFr);
-                        const nameAr = sanitize(data.nameAr);
-                        const price = sanitize(data.price);
-
-                        card.innerHTML = `
+                    card.innerHTML = `
                         <div>
                             <div class="flex justify-between items-start mb-4">
-                                <span class="text-[8px] font-bold uppercase tracking-[0.2em] bg-[#b48c68]/10 text-[#b48c68] px-3 py-1 rounded-md">${cat}</span>
-                                <span class="text-[8px] font-bold opacity-30 uppercase" dir="rtl">${catAr || ''}</span>
+                                <span class="text-[8px] font-bold uppercase tracking-[0.2em] bg-[#b48c68]/10 text-[#b48c68] px-3 py-1 rounded-md">${category}</span>
                             </div>
                             <h4 class="font-bold text-base mb-1">${nameFr}</h4>
                             <p class="text-xs font-bold opacity-30" dir="rtl">${nameAr}</p>
                         </div>
                         <div class="flex justify-between items-center pt-4 border-t border-black/5">
                             <div class="text-xl font-bold text-[#b48c68]">${price}<span class="text-[9px] opacity-40 ml-1 uppercase">DT</span></div>
-                            <div class="flex gap-2">
-                                <button onclick='editItem("${id}", ${JSON.stringify(data).replace(/"/g, "&quot;")})' class="p-3 bg-gray-50 hover:bg-black hover:text-white rounded-xl transition-all">
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                </button>
-                                <button onclick="deleteItem('${id}')" class="p-3 bg-red-50 text-red-400 hover:bg-red-500 hover:text-white rounded-xl transition-all">
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
-                                </button>
+                            <div class="flex gap-2" id="actions-${item.id}">
                             </div>
                         </div>
                     `;
-                        list.appendChild(card);
-                    });
-                } catch (err) { console.error(err); }
+
+                    const actionsDiv = card.querySelector(`#actions-${item.id}`);
+
+                    const editBtn = document.createElement('button');
+                    editBtn.className = "p-3 bg-gray-50 hover:bg-black hover:text-white rounded-xl transition-all text-[10px] font-bold uppercase";
+                    editBtn.innerText = "Editer";
+                    editBtn.onclick = () => window.editItem(item);
+
+                    const delBtn = document.createElement('button');
+                    delBtn.className = "p-3 bg-red-50 text-red-400 hover:bg-red-500 hover:text-white rounded-xl transition-all text-[10px] font-bold uppercase";
+                    delBtn.innerText = "Suppr";
+                    delBtn.onclick = () => window.handleDeleteItem(item.id);
+
+                    actionsDiv.appendChild(editBtn);
+                    actionsDiv.appendChild(delBtn);
+
+                    list.appendChild(card);
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        window.openModal = (item = null) => {
+            document.getElementById('modal').classList.remove('hidden');
+            if (item) {
+                document.getElementById('editId').value = item.id;
+                document.getElementById('category').value = item.category;
+                document.getElementById('categoryAr').value = item.categoryAr;
+                document.getElementById('nameFr').value = item.nameFr;
+                document.getElementById('nameAr').value = item.nameAr;
+                document.getElementById('price').value = item.price;
+            } else {
+                document.getElementById('itemForm').reset();
+                document.getElementById('editId').value = "";
             }
+        };
 
-            window.editItem = (id, data) => openModal({ id, ...data });
-            window.deleteItem = async (id) => {
-                if (confirm("Supprimer cet article ?")) {
-                    await deleteDoc(doc(db, "menu", id));
-                    await logAuditAction(db, addDoc, collection, serverTimestamp, auth.currentUser, "DELETE_ITEM", { id });
-                    loadMenu();
-                }
-            };
+        window.closeModal = () => document.getElementById('modal').classList.add('hidden');
 
-            window.clearMenu = async () => {
-                if (!confirm("ATTENTION : Cela va supprimer TOUT le menu. Continuer ?")) return;
-                const q = await getDocs(collection(db, "menu"));
-                const batch = writeBatch(db);
-                q.forEach(d => batch.delete(doc(db, "menu", d.id)));
-                await batch.commit();
-                await logAuditAction(db, addDoc, collection, serverTimestamp, auth.currentUser, "CLEAR_MENU", {});
+        window.editItem = (item) => openModal(item);
+
+        window.handleDeleteItem = async (id) => {
+            if (confirm("Supprimer ?")) {
+                await deleteMenuItem(id);
                 loadMenu();
-            };
+            }
+        };
 
-            document.getElementById('itemForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const editId = document.getElementById('editId').value;
-                const btn = document.getElementById('submitBtn');
-                btn.disabled = true;
-                btn.innerText = "Synchronisation...";
-
-                const itemData = {
-                    category: document.getElementById('category').value,
-                    categoryAr: document.getElementById('categoryAr').value,
-                    nameFr: document.getElementById('nameFr').value,
-                    nameAr: document.getElementById('nameAr').value,
-                    price: document.getElementById('price').value,
-                    updatedAt: serverTimestamp()
-                };
-                try {
-                    if (editId) {
-                        await updateDoc(doc(db, "menu", editId), itemData);
-                        await logAuditAction(db, addDoc, collection, serverTimestamp, auth.currentUser, "EDIT_ITEM", { id: editId, ...itemData });
-                    } else {
-                        itemData.createdAt = serverTimestamp();
-                        const docRef = await addDoc(collection(db, "menu"), itemData);
-                        await logAuditAction(db, addDoc, collection, serverTimestamp, auth.currentUser, "ADD_ITEM", { id: docRef.id, ...itemData });
-                    }
-                    closeModal();
-                    loadMenu();
-                } catch (err) { alert(err.message); }
-                btn.disabled = false;
-                btn.innerText = "Enregistrer";
-            });
-
-            window.restoreDefaultMenu = async () => {
-                if (!confirm("Restaurer la liste d'origine ZCOFFEE ?")) return;
-                const defaults = [
-                    { category: "Cafés", categoryAr: "القهوة", nameFr: "Express / Demi / Allongé", nameAr: "إكسبريسو / دمي / ألونجي", price: "2.5" },
-                    { category: "Cafés", categoryAr: "القهوة", nameFr: "Cappuccino / Americano", nameAr: "كابوتشينو / أمريكانو", price: "2.8" },
-                    { category: "Cafés", categoryAr: "القهوة", nameFr: "Direct", nameAr: "قهوة ديريكت", price: "3.2" },
-                    { category: "Cafés", categoryAr: "القهوة", nameFr: "Spécial", nameAr: "قهوة خاصة (سبسيال)", price: "3.5" },
-                    { category: "Boissons Fraîches", categoryAr: "مشروبات باردة", nameFr: "Jus Frais", nameAr: "عصير طازج", price: "4" },
-                    { category: "Boissons Fraîches", categoryAr: "مشروبات باردة", nameFr: "Citronnade", nameAr: "ليموناضة", price: "3" },
-                    { category: "Boissons Fraîches", categoryAr: "مشروبات باردة", nameFr: "Citronnade Amande", nameAr: "ليموناضة باللوز", price: "5" },
-                    { category: "Boissons Fraîches", categoryAr: "مشروبات باردة", nameFr: "Mojito", nameAr: "موهيتو", price: "6" },
-                    { category: "Viennoiseries", categoryAr: "مخبوزات", nameFr: "Snoopy / Croissant", nameAr: "سنوبي / كرواسون", price: "2.5" },
-                    { category: "Viennoiseries", categoryAr: "مخبوزات", nameFr: "Pâté", nameAr: "باتي", price: "2" },
-                    { category: "Thé", categoryAr: "الشاي", nameFr: "Thé", nameAr: "شاي", price: "2" },
-                    { category: "Thé", categoryAr: "الشاي", nameFr: "Thé Amande", nameAr: "شاي باللوز", price: "4" },
-                    { category: "Chicha & Girac", categoryAr: "شيشة وجيراك", nameFr: "Chicha Menthe", nameAr: "شيشة نعناع", price: "4" },
-                    { category: "Chicha & Girac", categoryAr: "شيشة وجيراك", nameFr: "Chicha Cocktail", nameAr: "شيشة كوكتيل", price: "4.5" },
-                    { category: "Chicha & Girac", categoryAr: "شيشة وجيراك", nameFr: "Chicha Vide", nameAr: "شيشة فارغة", price: "3" },
-                    { category: "Chicha & Girac", categoryAr: "شيشة وجيراك", nameFr: "Girac (M)", nameAr: "جيراك (M)", price: "3.5" },
-                    { category: "Chicha & Girac", categoryAr: "شيشة وجيراك", nameFr: "Girac (XL)", nameAr: "جيراك (XL)", price: "4.5" },
-                    { category: "Chicha & Girac", categoryAr: "شيشة وجيراك", nameFr: "Girac (XXL)", nameAr: "جيراك (XXL)", price: "5.5" },
-                    { category: "Eaux & Soft", categoryAr: "مياه ومشروبات غازية", nameFr: "Eau 1.5 L", nameAr: "ماء 1.5 ل", price: "2" },
-                    { category: "Eaux & Soft", categoryAr: "مياه ومشروبات غازية", nameFr: "Eau 0.5 L", nameAr: "ماء 0.5 ل", price: "1" },
-                    { category: "Eaux & Soft", categoryAr: "مياه ومشروبات غازية", nameFr: "Canette", nameAr: "كانات", price: "2.5" }
-                ];
-                for (const item of defaults) await addDoc(collection(db, "menu"), { ...item, createdAt: serverTimestamp() });
-                await logAuditAction(db, addDoc, collection, serverTimestamp, auth.currentUser, "RESTORE_DEFAULTS", {});
+        window.handleClearMenu = async () => {
+            if (confirm("Tout vider ?")) {
+                await clearMenu();
                 loadMenu();
+            }
+        };
+
+        window.handleRestoreMenu = async () => {
+            if (confirm("Restaurer ?")) {
+                await restoreMenu();
+                loadMenu();
+            }
+        };
+
+        document.getElementById('itemForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editId').value;
+            const data = {
+                category: document.getElementById('category').value,
+                categoryAr: document.getElementById('categoryAr').value,
+                nameFr: document.getElementById('nameFr').value,
+                nameAr: document.getElementById('nameAr').value,
+                price: document.getElementById('price').value
             };
-        </script>
+
+            try {
+                if (id) await updateMenuItem(id, data);
+                else await addMenuItem(data);
+                closeModal();
+                loadMenu();
+            } catch (err) { alert(err.message); }
+        });
+    </script>
 </body>
 
 </html>

@@ -4,9 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZCOFFEE | Accès Admin</title>
+    <title>ZCOFFEE | Accès Admin Sécurisé</title>
 
-    <!-- Favicon Duo Tone Pro -->
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><clipPath id='s'><rect width='100' height='100' rx='30'/></clipPath></defs><g clip-path='url(%23s)'><rect width='50' height='100' fill='%232d2a26'/><rect x='50' width='50' height='100' fill='%23b48c68'/><text y='72' x='50' text-anchor='middle' font-family='Georgia,serif' font-weight='900' font-size='65' fill='%23faf9f6'>Z</text></g></svg>">
 
@@ -53,17 +52,6 @@
             z-index: 0;
         }
 
-        .lighting-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100vw;
-            height: 100vh;
-            background: radial-gradient(circle at center, rgba(212, 188, 156, 0.15) 0%, transparent 70%);
-            z-index: -1;
-        }
-
         .glass-card {
             background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(20px);
@@ -73,56 +61,44 @@
             z-index: 10;
         }
 
-        .btn-google {
-            background-color: white;
-            color: var(--text);
-            border: 1px solid rgba(180, 140, 104, 0.2);
-            transition: all 0.4s ease-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
+        .input-field {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(45, 42, 38, 0.1);
+            transition: all 0.3s ease;
         }
 
-        .btn-google:hover:not(:disabled) {
-            background-color: white;
+        .input-field:focus {
             border-color: var(--accent);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(180, 140, 104, 0.1);
+        }
+
+        .btn-premium {
+            background-color: var(--text);
+            color: white;
+            transition: all 0.4s ease;
+        }
+
+        .btn-premium:hover:not(:disabled) {
+            background-color: var(--accent);
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(180, 140, 104, 0.1);
+            box-shadow: 0 10px 20px rgba(45, 42, 38, 0.1);
         }
 
-        .btn-google:active {
-            transform: translateY(0);
-        }
-
-        .btn-google:disabled {
+        .btn-premium:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-reveal {
-            animation: fadeIn 0.8s ease-out forwards;
+        .step-transition {
+            transition: all 0.5s ease-in-out;
         }
     </style>
 </head>
 
 <body class="hidden" id="page">
 
-    <div class="lighting-overlay"></div>
-
-    <div class="glass-card p-10 md:p-12 rounded-[2.5rem] w-full max-w-sm mx-4 animate-reveal text-center">
+    <div class="glass-card p-10 md:p-12 rounded-[2.5rem] w-full max-w-sm mx-4 text-center">
         <div class="mb-10">
             <div class="w-14 h-14 bg-[#2d2a26] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <svg width="28" height="28" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
@@ -130,47 +106,62 @@
                 </svg>
             </div>
             <h1 class="serif text-3xl font-bold tracking-tight mb-2 uppercase">ZCOFFEE</h1>
-            <p class="text-[10px] uppercase tracking-[0.3em] opacity-40 font-bold">Espace Administration</p>
+            <p class="text-[10px] uppercase tracking-[0.3em] opacity-40 font-bold">Système Autonome Sécurisé</p>
         </div>
 
-        <div class="space-y-6">
-            <p class="text-xs opacity-60 px-4 leading-relaxed">
-                Connectez-vous avec votre compte Google pour accéder à la gestion du menu.
-            </p>
-
-            <button id="googleBtn"
-                class="btn-google w-full py-4 rounded-2xl font-bold uppercase tracking-widest text-[10px] shadow-sm">
-                <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path fill="#4285F4"
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                    <path fill="#34A853"
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                    <path fill="#FBBC05"
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
-                    <path fill="#EA4335"
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                </svg>
-                Continuer avec Google
+        <!-- Step 1: Credentials -->
+        <form id="loginForm" class="space-y-4 step-transition">
+            <div class="text-left">
+                <label class="block text-[10px] uppercase font-bold tracking-widest opacity-40 mb-2 ml-1">Identifiant</label>
+                <input type="text" id="username" required
+                    class="input-field w-full px-5 py-4 rounded-2xl focus:outline-none text-sm"
+                    placeholder="Nom d'utilisateur">
+            </div>
+            <div class="text-left">
+                <label class="block text-[10px] uppercase font-bold tracking-widest opacity-40 mb-2 ml-1">Mot de passe</label>
+                <input type="password" id="password" required
+                    class="input-field w-full px-5 py-4 rounded-2xl focus:outline-none text-sm"
+                    placeholder="••••••••">
+            </div>
+            <button type="submit" id="loginBtn"
+                class="btn-premium w-full py-5 rounded-2xl font-bold uppercase tracking-widest text-[10px] mt-4">
+                Connexion
             </button>
+        </form>
 
-            <div id="error" class="hidden">
-                <p id="errorText" class="text-rose-500 text-[10px] font-bold uppercase tracking-widest"></p>
+        <!-- Step 2: MFA (Hidden initially) -->
+        <form id="mfaForm" class="space-y-6 step-transition hidden">
+            <div class="text-center mb-4">
+                <p class="text-xs opacity-60">Veuillez saisir le code de sécurité généré par votre application MFA.</p>
             </div>
+            <div class="flex justify-center gap-2" id="otp-container">
+                <input type="text" id="otp" required maxlength="6"
+                    class="input-field w-full px-5 py-4 rounded-2xl focus:outline-none text-center text-2xl font-bold tracking-[0.5em]"
+                    placeholder="000000">
+            </div>
+            <button type="submit" id="verifyBtn"
+                class="btn-premium w-full py-5 rounded-2xl font-bold uppercase tracking-widest text-[10px]">
+                Vérifier le code
+            </button>
+            <button type="button" id="backBtn" class="text-[9px] uppercase font-bold opacity-30 hover:opacity-100 transition-opacity">
+                Retour
+            </button>
+        </form>
 
-            <div class="pt-4">
-                <a href="../zcoffee-secret-2026.html"
-                    class="text-[9px] uppercase font-bold opacity-30 hover:opacity-100 transition-opacity tracking-[0.2em] border-b border-transparent hover:border-[#b48c68]">
-                    Retour à la clé
-                </a>
-            </div>
+        <div id="error" class="hidden mt-6">
+            <p id="errorText" class="text-rose-500 text-[10px] font-bold uppercase tracking-widest leading-relaxed"></p>
+        </div>
+
+        <div class="pt-8">
+            <a href="../zcoffee-secret-2026.html"
+                class="text-[9px] uppercase font-bold opacity-30 hover:opacity-100 transition-opacity tracking-[0.2em]">
+                Sortie Sécurisée
+            </a>
         </div>
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { firebaseConfig } from "../js/firebase-config.js";
-        import { checkAdminStatus } from "./security_utils.js";
+        import { login, verifyMFA } from "./security_utils.js";
 
         // Sécurité : Si la clé n'a pas été saisie, on retourne à l'index secret
         if (sessionStorage.getItem('key_cleared') !== 'true') {
@@ -179,45 +170,62 @@
             document.getElementById('page').classList.remove('hidden');
         }
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
+        const loginForm = document.getElementById('loginForm');
+        const mfaForm = document.getElementById('mfaForm');
+        const errorDiv = document.getElementById('error');
+        const errorText = document.getElementById('errorText');
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const isAdmin = await checkAdminStatus(user);
-                if (isAdmin) {
-                    window.location.href = "dashboard.html";
+        let currentMfaToken = null;
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+
+            loginBtn.disabled = true;
+            errorDiv.classList.add('hidden');
+
+            try {
+                const response = await login(username, password);
+                if (response.mfaToken) {
+                    currentMfaToken = response.mfaToken;
+                    loginForm.classList.add('hidden');
+                    mfaForm.classList.remove('hidden');
                 }
+            } catch (err) {
+                errorText.innerText = err.message || "Erreur d'authentification";
+                errorDiv.classList.remove('hidden');
+            } finally {
+                loginBtn.disabled = false;
             }
         });
 
-        document.getElementById("googleBtn").addEventListener("click", async () => {
-            const googleBtn = document.getElementById("googleBtn");
-            const errorDiv = document.getElementById("error");
-            const errorText = document.getElementById("errorText");
+        mfaForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const otp = document.getElementById('otp').value;
+            const verifyBtn = document.getElementById('verifyBtn');
 
-            googleBtn.disabled = true;
-            errorDiv.classList.add("hidden");
+            verifyBtn.disabled = true;
+            errorDiv.classList.add('hidden');
 
             try {
-                const result = await signInWithPopup(auth, provider);
-                const isAdmin = await checkAdminStatus(result.user);
-
-                if (!isAdmin) {
-                    errorText.innerText = "Accès refusé : Droits insuffisants.";
-                    errorDiv.classList.remove("hidden");
-                    await auth.signOut();
-                    googleBtn.disabled = false;
-                } else {
+                const success = await verifyMFA(currentMfaToken, otp);
+                if (success) {
                     window.location.href = "dashboard.html";
                 }
-            } catch (error) {
-                console.error(error);
-                errorText.innerText = "Échec de la connexion";
-                errorDiv.classList.remove("hidden");
-                googleBtn.disabled = false;
+            } catch (err) {
+                errorText.innerText = err.message || "Code MFA invalide";
+                errorDiv.classList.remove('hidden');
+            } finally {
+                verifyBtn.disabled = false;
             }
+        });
+
+        document.getElementById('backBtn').addEventListener('click', () => {
+            mfaForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+            errorDiv.classList.add('hidden');
         });
     </script>
 </body>

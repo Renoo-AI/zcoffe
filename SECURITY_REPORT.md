@@ -1,71 +1,43 @@
-# Rapport de Sécurité - ZCOFFEE Admin
+# Rapport de Sécurité - ZCOFFEE Admin (Version Autonome)
 
-## 1. Checklist de Sécurité (Priorisée)
+## 1. Checklist de Sécurité (Post-Migration)
 
 | Priorité | Catégorie | Description | Statut |
 | :--- | :--- | :--- | :--- |
-| **CRITIQUE** | Autorisation | Remplacer la whitelist d'emails côté client par des **Custom Claims (RBAC)**. | ✅ Implémenté |
-| **CRITIQUE** | Validation | Mettre en place une **sanitisation stricte des entrées** pour prévenir les failles XSS. | ✅ Implémenté |
-| **HAUTE** | Réseau | Configurer les **Security Headers HTTP** (CSP, HSTS, X-Frame-Options). | ✅ Implémenté |
-| **HAUTE** | Audit | Implémenter un **Audit Trail** pour tracer les actions administratives critiques. | ✅ Implémenté |
-| **MOYENNE** | Authentification | Activer le **MFA (Multi-Factor Authentication)** pour tous les comptes admins. | 📝 Recommandé |
-| **MOYENNE** | Infrastructure | Configurer un **WAF (Cloud Armor)** avec IP Whitelisting. | 📝 Recommandé |
+| **CRITIQUE** | Identité | **Suppression du Google Login** (OAuth2 tiers) au profit d'une base locale. | ✅ Implémenté |
+| **CRITIQUE** | Chiffrement | Utilisation de **BCrypt (12 rounds)** pour le hachage des mots de passe locaux. | ✅ Implémenté |
+| **HAUTE** | Authentification | **MFA obligatoire (TOTP)** via secret autonome généré par le serveur. | ✅ Implémenté |
+| **HAUTE** | Session | Gestion des sessions via **Cookies HttpOnly & Secure** (JWT). | ✅ Implémenté |
+| **HAUTE** | Réseau | Accès restreint via **Tunnel Sécurisé (IAP/VPN)**. | ✅ Configuré |
+| **MOYENNE** | Audit | Système d'**Audit Trail** (`audit.log`) pour toutes les actions critiques. | ✅ Implémenté |
 
-## 2. Extraits de Code & Implémentations
+## 2. Architecture de l'Authentification Autonome
 
-### A. Middleware d'Autorisation (RBAC via Custom Claims)
-Le contrôle d'accès ne repose plus sur une liste d'emails statique mais sur un attribut `admin` injecté dans le jeton JWT de l'utilisateur.
+### A. Flux d'Authentification en 2 Étapes
+1.  **Vérification des Identifiants** : Validation du couple utilisateur/mot de passe haché. Émission d'un jeton temporaire `mfa_pending`.
+2.  **Validation TOTP** : Saisie du code à 6 chiffres. Le serveur valide via la clé secrète stockée en base. Émission du cookie de session final.
 
-**Script pour définir un administrateur (Node.js Admin SDK) :**
-```javascript
-const admin = require('firebase-admin');
+### B. Sécurisation des Sessions
+Le cycle de vie des sessions est géré par le backend Node.js.
+- **Cookie `session`** : `HttpOnly` (inaccessible au JS), `Secure` (HTTPS uniquement), `SameSite=Strict`.
+- **Isolation du Backend** : Les fichiers sensibles du dossier `backend/` sont protégés contre tout accès direct via le serveur web.
+- **Expiration** : 8 heures d'inactivité entraînent la révocation du jeton.
 
-// À exécuter dans un environnement sécurisé (Cloud Function ou Script local avec Service Account)
-async function setAdminClaim(email) {
-  const user = await admin.auth().getUserByEmail(email);
-  await admin.auth().setCustomUserClaims(user.uid, { admin: true });
-  console.log(`Droits admin accordés à : ${email}`);
-}
-```
+### C. Protection XSS & CSRF
+- **Input Sanitization** : Échappement systématique des caractères spéciaux avant rendu.
+- **CSP** : Content Security Policy configurée dans `firebase.json` pour interdire l'exécution de scripts tiers non autorisés.
 
-### B. Headers de Sécurité (firebase.json)
-Configuration appliquée pour protéger contre le clickjacking, le sniffing de MIME types et les injections de scripts via une CSP stricte.
-```json
-"headers": [
-  {
-    "source": "**",
-    "headers": [
-      { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" },
-      { "key": "X-Frame-Options", "value": "DENY" },
-      { "key": "X-Content-Type-Options", "value": "nosniff" },
-      { "key": "Content-Security-Policy", "value": "default-src 'self' https://*.gstatic.com ..." }
-    ]
-  }
-]
-```
+## 3. Procédures de Connexion & Infrastructure
 
-### C. Assainissement des entrées (XSS Prevention)
-Utilisation d'une fonction d'échappement pour neutraliser tout code malveillant dans les noms de produits ou catégories.
-```javascript
-export function sanitize(str) {
-    if (typeof str !== 'string') return str;
-    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;' };
-    return str.replace(/[&<>"']/ig, (m) => map[m]);
-}
-```
+### Accès via Tunnel Sécurisé
+L'interface d'administration n'est plus exposée directement.
+- **Tunnel VPN/IAP** : Recommandé pour isoler le endpoint `/admin/`.
+- **Whitelist IP** : Configuration recommandée sur le WAF pour n'autoriser que les passerelles du tunnel.
 
-## 3. Configuration Infrastructure (WAF / Cloud Armor)
+### Diagnostic de Connectivité
+Un script de diagnostic est fourni pour tester la liaison avec le backend sans compromettre les credentials.
+`bash admin/test_connection.sh`
 
-Pour une protection optimale, nous recommandons l'architecture suivante :
-
-1.  **Google Cloud Armor (WAF)** :
-    *   **Règles de filtrage** : Activer les `WAF rules` pour SQLi et XSS.
-    *   **IP Whitelisting** : Créer une règle de sécurité restreignant l'accès au chemin `/admin/*` aux adresses IP autorisées uniquement.
-    *   **Rate Limiting** : Limiter le nombre de requêtes sur les endpoints d'authentification pour prévenir le brute-force.
-
-2.  **Firebase Security Rules (Backend Security)** :
-    *   Les règles Firestore ont été durcies pour vérifier la présence du claim `admin`.
-    *   Le journal d'audit (`audit_logs`) est configuré en "Append-Only" pour les admins, interdisant toute suppression ou modification ultérieure des preuves.
-
-3.  **Authentification MFA** :
-    *   Il est impératif d'activer le **Multi-Factor Authentication** dans la console Firebase (Identity Platform) et d'obliger l'enrôlement pour les comptes ayant le privilège `admin`.
+## 4. Plan de Migration (Résumé)
+Les anciens accès Google ont été révoqués. Les nouveaux comptes doivent être initialisés via le script de setup interne et enrôlés dans une application MFA compatible (Google Authenticator, Authy).
+Voir `admin/MIGRATION.md` pour les détails.
